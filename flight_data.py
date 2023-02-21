@@ -1,4 +1,4 @@
-from flight_search import FlightSearch
+from tequilaAPI import FlightSearch
 import datetime as dt
 from dateutil import tz
 
@@ -17,14 +17,14 @@ class FlightData:
         # Catalog all the flights found
         self.my_flights = []   # TODO: New structure: [{email:, flights:[]}
 
-    def search_flight(self, destinations:dict):
+    def search_flight(self, destinations:dict, origin:str, stopovers:int = 0):
         """Search 6-month flights for each destination. Updates Google sheet with the lowest prices"""
 
         # TODO: search flights among all destinations:
         # Find flights below lowest price threshold for each destination
         for iataCode, lowestPrice in destinations.items():
             # Look for flights for each destination
-            flights_found = self.flight_seeker.lookup_flights(destination=iataCode, lowest_price=lowestPrice)
+            flights_found = self.flight_seeker.lookup_flights(origin=origin, destination=iataCode, lowest_price=lowestPrice, stopovers=stopovers)
 
             # Generate new dictionary item for each flight
             for flight in flights_found:

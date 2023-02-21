@@ -1,7 +1,7 @@
 import requests
-from flight_search import FlightSearch
+from tequilaAPI import FlightSearch
 
-class DataManager:
+class Destination:
     def __init__(self, location_finder:FlightSearch):
         self.locator = location_finder
         self.endpoint = 'https://api.sheety.co/07ba30f9f4b8e27229537eb7b5dd282a/flightDeals/prices'
@@ -12,6 +12,7 @@ class DataManager:
 
         # Updated JSON copy of Google Doc
         self.content = None
+        self.refresh()
 
     def fill_iata(self):
         """Fill in """
@@ -82,6 +83,43 @@ class DataManager:
 
     # TODO: New Function input subscriber info onto Google Doc
     # TODO: New function adds subscriber departure city to Google Doc, if not present
+
+class Subscriber:
+    def __init__(self):
+        self.endpoint = 'https://api.sheety.co/07ba30f9f4b8e27229537eb7b5dd282a/flightDeals/subscribers'
+        self.token = "a189189e2812e"
+        self.auth = {
+            'Authorization': 'Bearer a189189e2812e'
+        }
+
+        # Updated JSON copy of Google Doc
+        self.content = None
+        self.refresh()
+
+    def add_user(self, first_name, last_name, email, origin, iata):
+        # Package the code found
+        if email not in [row['email'] for row in self.content['subscribers']]:
+            payload = {
+                'subscriber':{
+                    'firstName':first_name,
+                    'lastName':last_name,
+                    'email':email,
+                    'origin':origin,
+                    'iataCode': iata
+                }
+            }
+
+            # Update row with IATA info
+            requests.post(url=self.endpoint, json=payload, headers=self.auth)
+        else:
+            print("Email is already in the system. Please enter another one.")
+
+    def refresh(self):
+        """Update JSON copy of Google Doc sheet"""
+        response = requests.get(url=self.endpoint, headers=self.auth)
+        self.content = response.json()
+
+
 
 # TODO: 1) Add user departure city to the main list
 # TODO: 2) search flights between all destinations in list

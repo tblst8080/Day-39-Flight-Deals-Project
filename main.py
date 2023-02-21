@@ -1,12 +1,12 @@
-#This file will need to use the DataManager,FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
-from data_manager import DataManager
+#This file will need to use the Destination,FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
+from sheetyAPI import Destination
 from flight_data import FlightData
-from flight_search import FlightSearch
-from notification_manager import NotificationManager
+from tequilaAPI import FlightSearch
+from sms_smtp import NotificationManager
 
 # Setting up objects
-my_flight_finder = FlightSearch(origin='SHA')
-my_google_doc = DataManager(my_flight_finder)
+my_flight_finder = FlightSearch()
+my_google_doc = Destination(location_finder=my_flight_finder)
 my_notifier = NotificationManager()
 
 
