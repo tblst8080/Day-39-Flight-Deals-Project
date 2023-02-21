@@ -2,8 +2,7 @@ import requests
 from tequilaAPI import FlightSearch
 
 class Destination:
-    def __init__(self, location_finder:FlightSearch):
-        self.locator = location_finder
+    def __init__(self):
         self.endpoint = 'https://api.sheety.co/07ba30f9f4b8e27229537eb7b5dd282a/flightDeals/prices'
         self.token = "a189189e2812e"
         self.auth = {
@@ -14,16 +13,16 @@ class Destination:
         self.content = None
         self.refresh()
 
-    def fill_iata(self):
+    def fill_iata(self, location_finder:FlightSearch):
         """Fill in """
         self.refresh()
-        for item in self.content['prices']:
+        for item in self.content:
 
             # If row does not have iataCode:
             if item['iataCode'] == '':
 
                 # Find the code based on city name
-                city_code = self.locator.find_code(item['city'])
+                city_code = location_finder.find_code(item['city'])
 
                 # Package the code found
                 payload = {
@@ -39,14 +38,14 @@ class Destination:
     def update_destinations(self) -> dict:
         """Retrieve destination (IATA Code) and lowest price (USD) data from Google Doc"""
         self.refresh()
-        return {row['iataCode']:row['lowestPrice'] for row in self.content['prices']}
+        return {row['iataCode']:row['lowestPrice'] for row in self.content}
 
     def update_price(self, catalog:dict):
         """Update Google Doc with the new lowest price. Takes FlightData catalog as input"""
         self.refresh()
 
         # Look through the rows:
-        for destination in self.content['prices']:
+        for destination in self.content:
 
             # Generate prices corresponding to IATA
             prices = [flight['price'] for flight in catalog if flight['t_iata'] == destination['iataCode']]
@@ -79,7 +78,7 @@ class Destination:
     def refresh(self):
         """Update JSON copy of Google Doc sheet"""
         response = requests.get(url=self.endpoint, headers=self.auth)
-        self.content = response.json()
+        self.content = response.json()['prices']
 
     # TODO: New Function input subscriber info onto Google Doc
     # TODO: New function adds subscriber departure city to Google Doc, if not present
@@ -98,7 +97,7 @@ class Subscriber:
 
     def add_user(self, first_name, last_name, email, origin, iata):
         # Package the code found
-        if email not in [row['email'] for row in self.content['subscribers']]:
+        if email not in [row['email'] for row in self.content]:
             payload = {
                 'subscriber':{
                     'firstName':first_name,
@@ -117,7 +116,7 @@ class Subscriber:
     def refresh(self):
         """Update JSON copy of Google Doc sheet"""
         response = requests.get(url=self.endpoint, headers=self.auth)
-        self.content = response.json()
+        self.content = response.json()['subscribers']
 
 
 

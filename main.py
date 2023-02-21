@@ -6,14 +6,14 @@ from sms_smtp import NotificationManager
 
 # Setting up objects
 my_flight_finder = FlightSearch()
-my_google_doc = Destination(location_finder=my_flight_finder)
+my_google_doc = Destination()
 my_notifier = NotificationManager()
 
 
 # TODO: Fill IATA information on user page first and add it to the search sheet
 # Fill IATA information for new cities in sheet
 print('Filling IATA codes...')
-my_google_doc.fill_iata()
+my_google_doc.fill_iata(location_finder=my_flight_finder)
 
 # Search for flights for all cities
 my_destinations = my_google_doc.update_destinations()  # Generate a dictionary containing all destinations {iataCode;lowestPrice}
