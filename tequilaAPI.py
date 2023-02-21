@@ -1,5 +1,6 @@
 import requests
 import datetime as dt
+from APIs import tequila_key
 
 class FlightSearch:
     """This class is responsible for talking to the Flight Search API."""
@@ -7,8 +8,7 @@ class FlightSearch:
     def __init__(self):
         self.endpoint = 'https://api.tequila.kiwi.com/v2/search'
         self.location = 'https://api.tequila.kiwi.com/locations/query'
-        self.key = 'U35JJmxfcZzQ6oO840BUTELOaos7cntn'
-        self.id = 'germsandspicesflightsearch'
+        self.key = tequila_key
 
         self.header = {'apikey': self.key}
 
@@ -35,7 +35,6 @@ class FlightSearch:
         }
 
         response = requests.get(url=self.endpoint, params=parameters, headers=self.header)
-        print(response.json())
         return response.json()['data']
 
     def find_code(self, city):
@@ -47,4 +46,7 @@ class FlightSearch:
         }
 
         response = requests.get(url=self.location, params=parameters, headers = self.header)
-        return response.json()['locations'][0]['code']
+        if len(response.json()['locations']) > 0:
+            return response.json()['locations'][0]['code']
+        else:
+            return False

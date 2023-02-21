@@ -2,7 +2,6 @@ import pandas as pd
 from sheetyAPI import Destination, Subscriber
 from tequilaAPI import FlightSearch
 
-
 class PriceMatrix:
     def __init__(self, dest_obj:Destination, sub_obj:Subscriber):
         self.dest_obj = dest_obj
@@ -15,6 +14,7 @@ class PriceMatrix:
         self.routes = []
 
     def fill_matrix(self):
+        """"""
         for destination in self.destinations:
             if destination not in self.df.columns.values:
                 self.df[destination] = 500
@@ -40,6 +40,22 @@ class PriceMatrix:
                                     'destination':column,
                                     'price':self.df.at[row, column]})
 
+    def update_prices(self, catalog:dict):
+        for key, value in catalog.items():
+            lowest_price = min([item.price for item in value])
+            print(f"Lowest price found for {key[0]} to {key[1]} is {lowest_price}")
+            self.df.at[key[0], key[1]] = lowest_price
+        for row in self.df.index.values:
+            for column in self.df.columns.values:
+                if (row, column) not in [(item[0], item[1]) for item in catalog.keys()]:
+                    self.df.at[row, column] *= 1.05
+                    self.df.at[row, column] = int(self.df.at[row, column])
+        self.df.to_csv('destination-origin matrix.csv')
+
+
+
+
+
 
 
 
@@ -52,7 +68,6 @@ if __name__ == "__main__":
     my_matrix.generate_routes()
 
 
-    my_searcher = FlightSearch()
     for route in my_matrix.routes:
-        my_searcher.lookup_flights(origin=route['origin'], destination=route['destination'], lowest_price=route['price'], stopovers=1)
-
+        result = my_searcher.lookup_flights(origin=route['origin'], destination=route['destination'], lowest_price=route['price'], stopovers=1)
+        print(result)

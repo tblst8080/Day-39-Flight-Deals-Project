@@ -1,21 +1,21 @@
 import requests
 from twilio.rest import Client
 from email.mime.text import MIMEText
+from APIs import sender_number, recipient_number, twilio_sid, twilio_token, sender_email, sender_password
 import smtplib
 
 class NotificationManager:
     """This class is responsible for sending notifications with the deal flight details."""
 
     def __init__(self):
-        self.recipient = '+12563304532'
-        self.sender = "+13128209309"
+        self.recipient = recipient_number
+        self.sender = sender_number
 
-        self.e_recipient = "germsandspices@yahoo.com"
-        self.e_sender = "germsandspices@gmail.com"
-        self.password = "mrkhdjilpjdhlgmg"
+        self.e_sender = sender_email
+        self.password = sender_password
 
         # Access Twilio Account
-        self.client = Client('AC7ed8990511c2f7540a17ddf1e0b78934', '98ddc2370619d08946b18e23a811d403')
+        self.client = Client(twilio_sid, twilio_token)
 
     def send_sms(self, catalog:list):
         """Generates notification from each entry of FlightData catalog and sends it via Twilio SMS"""
@@ -34,39 +34,47 @@ class NotificationManager:
 
             print(my_sms.status)
 
-    def send_email(self, catalog:list):  # TODO: Email each subscriber flights corresponding to their departure city
+    def send_email(self, catalog:dict, subscription_list:list):
         """Generate message for each flight from the catalog, and sends email notification via SMTP"""
-        if len(catalog) == 0:
-            # Generate message:
-            message = f"Subject: No good prices found."
+        for subscriber in subscription_list:
+            recipient = subscriber['email']
+            first_name = subscriber['firstName']
+            last_name = subscriber['lastName']
 
-            # Send email
-            with smtplib.SMTP('smtp.gmail.com') as connection:
-                print(1)
-                connection.starttls()
-                print(2)
-                connection.login(user = self.e_sender, password=self.password)
-                print(3)
-                connection.sendmail(from_addr=self.e_sender, to_addrs=self.e_recipient, msg=message)
-        else:
-            email_body = ""
-            for flight in catalog:
-                email_body += f"""\n<pre> 
-                <b>Flight from {flight['f_city']}({flight['f_airport']}) to {flight['t_city']}({flight['t_airport']}) for ${flight['price']}</b>\n
-                From {flight['departure'].strftime("%m/%d/%Y")} to {flight['return'].strftime("%m/%d%Y")}\n
-                <a href="{flight['link']}">Click here to book flight!</a>
-                </pre>"""
+            if subscriber['iataCode'] in [item[0] for item in catalog.keys()]:
+                email_body = f"Hello {first_name} {last_name}!"
 
-            msg = MIMEText(email_body, 'html')
 
-            msg['Subject'] = f"Low Price Alert!"
-            msg['From'] = 'xxx'
-            msg['To'] = 'Subscribers'
+                for key, value in catalog.items():
+                    if subscriber['iataCode'] == key[0]:
+                        for flight in value:
+                            if flight.stopover > 0:
+                                stopover_msg = f"Flight has {flight.stopover} stopover via {flight.via_city}.\n"
+                            else:
+                                stopover_msg = "Direct flight\n"
 
-            with smtplib.SMTP('smtp.gmail.com') as connection:
-                print(1)
-                connection.starttls()
-                print(2)
-                connection.login(user=self.e_sender, password=self.password)
-                print(3)
-                connection.sendmail(from_addr=self.e_sender, to_addrs=self.e_recipient, msg=msg.as_string())
+                            email_body += f"""\n<pre>
+                            <b>✈ Flight from {flight.cityFrom}({flight.airportFrom}) to {flight.cityTo}({flight.airportTo}) for ${flight.price}</b>\n
+                            {stopover_msg}
+                            From {flight.departure_flight.strftime("%m/%d")} to {flight.return_flight.strftime("%m/%d")}\n
+                            <a href="{flight.link}">Click here to book flight!</a>
+                            </pre>"""
+
+                msg = MIMEText(email_body, 'html')
+
+                msg['Subject'] = f"Low Price Alert!"
+                msg['To'] = 'Subscribers'
+                with smtplib.SMTP('smtp.gmail.com') as connection:
+                    connection.starttls()
+                    connection.login(user=self.e_sender, password=self.password)
+                    connection.sendmail(from_addr=self.e_sender, to_addrs=recipient, msg=msg.as_string())
+
+            else:
+                # Generate message:
+                message = f"Subject: No good prices found."
+
+                # Send email
+                with smtplib.SMTP('smtp.gmail.com') as connection:
+                    connection.starttls()
+                    connection.login(user=self.e_sender, password=self.password)
+                    connection.sendmail(from_addr=self.e_sender, to_addrs=recipient, msg=message)

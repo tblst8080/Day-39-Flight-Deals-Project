@@ -1,49 +1,23 @@
-from tequilaAPI import FlightSearch
-import datetime as dt
-from dateutil import tz
-
-def convert_time(fUTC):
-    """Convert UTC formatted time to datetime object"""
-    fUTC = fUTC.replace("T", " " ).replace(".000Z", "")
-    date_time = dt.datetime.strptime(f"{fUTC}", '%Y-%m-%d %H:%M:%S').replace(tzinfo=tz.gettz('UTC'))
-    return date_time
-
 class FlightData:
     """This class searches for cheap flights and stores them as dictionaries nested in a list"""
 
-    def __init__(self, searcher:FlightSearch):
-        self.flight_seeker = searcher
+    def __init__(self, flight_info:dict):
+        self.cityFrom = flight_info['cityFrom']
+        self.iataFrom = flight_info['iataFrom']
+        self.airportFrom = flight_info['airportFrom']
 
-        # Catalog all the flights found
-        self.my_flights = []   # TODO: New structure: [{email:, flights:[]}
+        self.stopover = flight_info['stopover']
+        self.via_city = flight_info['via_city']
 
-    def search_flight(self, destinations:dict, origin:str, stopovers:int = 0):
-        """Search 6-month flights for each destination. Updates Google sheet with the lowest prices"""
+        self.cityTo = flight_info['cityTo']
+        self.iataTo = flight_info['iataTo']
+        self.airportTo = flight_info['airportTo']
 
-        # TODO: search flights among all destinations:
-        # Find flights below lowest price threshold for each destination
-        for iataCode, lowestPrice in destinations.items():
-            # Look for flights for each destination
-            flights_found = self.flight_seeker.lookup_flights(origin=origin, destination=iataCode, lowest_price=lowestPrice, stopovers=stopovers)
 
-            # Generate new dictionary item for each flight
-            for flight in flights_found:
+        self.departure_flight = flight_info['departure']
+        self.return_flight = flight_info['return']
 
-                # Pull out relevant information
-                flight_info = {
-                    't_iata': flight['cityCodeTo'],
-                    'f_city': flight['cityFrom'],
-                    'f_airport': flight['flyFrom'],
-                    't_city': flight['cityTo'],
-                    't_airport': flight['flyTo'],
-                    'price': flight['price'],
-                    'departure':convert_time(fUTC=flight['utc_departure']),  # Departure time in datetime
-                    'return':convert_time(fUTC=flight['utc_arrival'])+dt.timedelta(days=flight['nightsInDest']),  # Return time in datetime
-                    'link':flight['deep_link'],
-                }
-
-                # Add flight to list
-                self.my_flights.append(flight_info)
-
+        self.price = flight_info['price']
+        self.link = flight_info['link']
 
 
