@@ -42,23 +42,24 @@ class NotificationManager:
             last_name = subscriber['lastName']
 
             if subscriber['iataCode'] in [item[0] for item in catalog.keys()]:
-                email_body = f"Hello {first_name} {last_name}!"
+                email_body = f"""
+        <p style="font-family:'Times New Roman';font-size:14px"><b>Hello {first_name} {last_name}!</b></br></p>"""
 
 
                 for key, value in catalog.items():
                     if subscriber['iataCode'] == key[0]:
                         for flight in value:
                             if flight.stopover > 0:
-                                stopover_msg = f"Flight has {flight.stopover} stopover via {flight.via_city}.\n"
+                                stopover_msg = f"Flight has {flight.stopover} stopover via {flight.via_city}.<br>"
                             else:
-                                stopover_msg = "Direct flight\n"
+                                stopover_msg = "Direct flight.<br>"
 
-                            email_body += f"""\n<pre>
-                            <b>✈ Flight from {flight.cityFrom}({flight.airportFrom}) to {flight.cityTo}({flight.airportTo}) for ${flight.price}</b>\n
-                            {stopover_msg}
-                            From {flight.departure_flight.strftime("%m/%d")} to {flight.return_flight.strftime("%m/%d")}\n
-                            <a href="{flight.link}">Click here to book flight!</a>
-                            </pre>"""
+                            email_body += f"""
+        \n<p style="font-family:'Times New Roman';font-size:14px"><b>✈ Flight from {flight.cityFrom}({flight.airportFrom}) to {flight.cityTo}({flight.airportTo}) for ${flight.price}!</b><br>
+        {stopover_msg}
+        From {flight.departure_flight.strftime("%m/%d")} to {flight.return_flight.strftime("%m/%d")}<br>
+        <a href="{flight.link}">Click here to book flight!</a><br><br>
+        </p>"""
 
                 msg = MIMEText(email_body, 'html')
 

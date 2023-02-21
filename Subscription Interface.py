@@ -1,6 +1,6 @@
-import requests
 from tequilaAPI import FlightSearch
 from sheetyAPI import Subscriber
+import os
 
 def check_origin(message):
     origin = input(message).title()
@@ -31,4 +31,7 @@ my_uploader = Subscriber()
 my_uploader.add_user(first_name = first_name, last_name=last_name, email=email, origin=origin, iata=iata)
 
 
+def clear_terminal():
+  os.system('cls' if os.name == 'nt' else 'clear')
 
+print("Your info has been added to the system!")
