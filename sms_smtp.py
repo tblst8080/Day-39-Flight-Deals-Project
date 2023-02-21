@@ -55,7 +55,7 @@ class NotificationManager:
                                 stopover_msg = "Direct flight.<br>"
 
                             email_body += f"""
-        \n<p style="font-family:'Times New Roman';font-size:14px"><b>✈ Flight from {flight.cityFrom}({flight.airportFrom}) to {flight.cityTo}({flight.airportTo}) for ${flight.price}!</b><br>
+        \n<p style="font-family:'Times New Roman';font-size:14px"><b><br>✈ Flight from {flight.cityFrom}({flight.airportFrom}) to {flight.cityTo}({flight.airportTo}) for ${flight.price}!</b><br>
         {stopover_msg}
         From {flight.departure_flight.strftime("%m/%d")} to {flight.return_flight.strftime("%m/%d")}<br>
         <a href="{flight.link}">Click here to book flight!</a><br><br>
@@ -79,3 +79,17 @@ class NotificationManager:
                     connection.starttls()
                     connection.login(user=self.e_sender, password=self.password)
                     connection.sendmail(from_addr=self.e_sender, to_addrs=recipient, msg=message)
+
+    def verify(self, email):
+        try:
+            # Generate message:
+            message = f"Subject: Thank you for subscribing to the Flight Club! \n\nThis is a verification email. Please do not respond."
+
+            # Send email
+            with smtplib.SMTP('smtp.gmail.com') as connection:
+                connection.starttls()
+                connection.login(user=self.e_sender, password=self.password)
+                connection.sendmail(from_addr=self.e_sender, to_addrs=email, msg=message)
+            return True
+        except:
+            return False

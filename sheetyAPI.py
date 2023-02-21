@@ -68,9 +68,11 @@ class Subscriber:
             }
 
             # Update row with IATA info
-            requests.post(url=self.endpoint, json=payload, headers=self.auth)
+            response = requests.post(url=self.endpoint, json=payload, headers=self.auth)
+            return True
         else:
-            print("Email is already in the system. Please enter another one.")
+            return False
+
 
     def refresh(self):
         """Update JSON copy of Google Doc sheet"""
