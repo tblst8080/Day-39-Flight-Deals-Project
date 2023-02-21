@@ -91,5 +91,6 @@ class NotificationManager:
                 connection.login(user=self.e_sender, password=self.password)
                 connection.sendmail(from_addr=self.e_sender, to_addrs=email, msg=message)
             return True
+
         except:
             return False
