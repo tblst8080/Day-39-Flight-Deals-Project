@@ -35,7 +35,10 @@ class FlightSearch:
         }
 
         response = requests.get(url=self.endpoint, params=parameters, headers=self.header)
-        return response.json()['data']
+        try:
+            return response.json()['data']
+        except KeyError:
+            return []
 
     def find_code(self, city):
         """Given a city, returns its IATA code."""
