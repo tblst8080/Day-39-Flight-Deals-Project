@@ -17,11 +17,11 @@ class PriceMatrix:
         """"""
         for destination in self.destinations:
             if destination not in self.df.columns.values:
-                self.df[destination] = 500
+                self.df[destination] = 2000
 
         for origin in self.origins:
             if origin not in self.df.index.values:
-                self.df.loc[origin] = [500 for item in self.df.columns.values]
+                self.df.loc[origin] = [2000 for item in self.df.columns.values]
 
         for column in self.df.columns.values:
             if column not in self.destinations:
@@ -40,10 +40,11 @@ class PriceMatrix:
                                     'destination':column,
                                     'price':self.df.at[row, column]})
 
-    def update_prices(self, catalog:dict):
+    def update_prices(self, catalog:dict, discreet=True):
         for key, value in catalog.items():
             lowest_price = min([item.price for item in value])
-            print(f"Lowest price found for {key[0]} to {key[1]} is {lowest_price}")
+            if not discreet:
+                print(f"Lowest price found for {key[0]} to {key[1]} is {lowest_price}")
             self.df.at[key[0], key[1]] = lowest_price
         for row in self.df.index.values:
             for column in self.df.columns.values:
@@ -51,23 +52,3 @@ class PriceMatrix:
                     self.df.at[row, column] *= 1.05
                     self.df.at[row, column] = int(self.df.at[row, column])
         self.df.to_csv('destination-origin matrix.csv')
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    my_destination = Destination()
-    my_subscriptions = Subscriber()
-    my_matrix = PriceMatrix(dest_obj=my_destination, sub_obj=my_subscriptions)
-    my_matrix.fill_matrix()
-    my_matrix.generate_routes()
-
-
-    for route in my_matrix.routes:
-        result = my_searcher.lookup_flights(origin=route['origin'], destination=route['destination'], lowest_price=route['price'], stopovers=1)
-        print(result)

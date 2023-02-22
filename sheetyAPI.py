@@ -16,11 +16,13 @@ class Destination:
 
     def fill_iata(self, location_finder:FlightSearch):
         """Fill in """
-        self.refresh()
         for item in self.content:
 
             # If row does not have iataCode:
-            if item['iataCode'] == '':
+            try:
+                item['iataCode']
+
+            except:
 
                 # Find the code based on city name
                 city_code = location_finder.find_code(item['city'])
@@ -35,6 +37,7 @@ class Destination:
                 # Update row with IATA info
                 put_endpoint = f"{self.endpoint}/{item['id']}"
                 requests.put(url=put_endpoint, json=payload, headers=self.auth)
+        self.refresh()
 
     def refresh(self):
         """Update JSON copy of Google Doc sheet"""
@@ -73,6 +76,29 @@ class Subscriber:
         else:
             return False
 
+    def fill_iata(self, location_finder:FlightSearch):
+        """Fill in """
+        for item in self.content:
+
+            # If row does not have iataCode:
+            try:
+                item['iataCode']
+
+            except:
+                # Find the code based on city name
+                city_code = location_finder.find_code(item['origin'])
+
+                # Package the code found
+                payload = {
+                    'subscriber':{
+                        'iataCode': city_code
+                    }
+                }
+
+                # Update row with IATA info
+                put_endpoint = f"{self.endpoint}/{item['id']}"
+                requests.put(url=put_endpoint, json=payload, headers=self.auth)
+        self.refresh()
 
     def refresh(self):
         """Update JSON copy of Google Doc sheet"""
