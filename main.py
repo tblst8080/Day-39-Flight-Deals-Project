@@ -18,7 +18,6 @@ def convert_time(fUTC):
 def search_flight(routes: list, output:dict, discreet=False):
     """Search 6-month flights for each destination. Updates Google sheet with the lowest prices"""
 
-    # TODO: search flights among all destinations:
     # Search flights for each route
     for route in routes:
 

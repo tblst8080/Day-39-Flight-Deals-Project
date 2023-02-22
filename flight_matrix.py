@@ -40,7 +40,7 @@ class PriceMatrix:
                                     'destination':column,
                                     'price':self.df.at[row, column]})
 
-    def update_prices(self, catalog:dict, discreet=True):
+    def update_prices(self, catalog:dict, discreet=True): # TODO: set the price using standard deviation of price history (separate df object)
         for key, value in catalog.items():
             lowest_price = min([item.price for item in value])
             if not discreet:
