@@ -78,9 +78,3 @@ class Subscriber:
         """Update JSON copy of Google Doc sheet"""
         response = requests.get(url=self.endpoint, headers=self.auth)
         self.content = response.json()['subscribers']
-
-
-
-# TODO: 1) Add user departure city to the main list
-# TODO: 2) search flights between all destinations in list
-# TODO: 3) from the flights found, select ones with matching departure city to email to each user
